@@ -20,13 +20,72 @@ import { Grid, Row, Col, Table } from "react-bootstrap";
 import { withRouter } from "react-router-dom";
 
 import Card from "components/Card/Card.jsx";
-import { jobsColumnNames, activeJobsData, completedJobsData } from "variables/Variables.jsx";
+import { jobsColumnNames, completedJobsData, activeJobsData } from "variables/Variables.jsx";
 import {StatsCard} from "../components/StatsCard/StatsCard";
 
 
 class TableList extends Component {
-  onClickHandler = (e) => {
-    this.props.history.push("job-information");
+  constructor(props){
+    super(props);
+    this.state = {
+      completed: [],
+      active: []
+    }
+  }
+
+  async loadNewData() {
+    try {
+      const res = await fetch('http://localhost:5000/jobs');
+      return await res.json();
+    } catch(e) {
+      console.log(e);
+      return [];
+    }
+  }
+
+  componentWillMount() {
+    this.loadNewData().then(newJobsData => {
+      const newCompletedJobArray = [];
+      for(var i = 0; i < newJobsData.completed.length; i++) {
+        const map = newJobsData.completed[i]
+        const currentRow = []
+        currentRow.push(map['jobName'])
+        currentRow.push(map['shufflingBucket'])
+        currentRow.push(map['inputSource'])
+        currentRow.push(map['outputSource'])
+        currentRow.push(map['submissionTime'])
+        currentRow.push(map['duration'])
+        currentRow.push(map['totalNumPipelines'])
+        currentRow.push(map['totalNumStages'])
+        newCompletedJobArray.push(currentRow)
+      }
+      const newActiveJobArray = [];
+      for(var j = 0; j < newJobsData.active.length; j++) {
+        const map = newJobsData.active[j]
+        const currentRow = []
+        currentRow.push(map['jobName'])
+        currentRow.push(map['shufflingBucket'])
+        currentRow.push(map['inputSource'])
+        currentRow.push(map['outputSource'])
+        currentRow.push(map['submissionTime'])
+        currentRow.push(map['duration'])
+        currentRow.push(map['totalNumPipelines'])
+        currentRow.push(map['totalNumStages'])
+        newActiveJobArray.push(currentRow)
+      }
+      this.setState({
+        'completed': newCompletedJobArray,
+        'active': newActiveJobArray
+      })
+    })
+  }
+
+  onClickHandler = (e, prop) => {
+    this.props.history.push({
+      pathname: "job-information",
+      state: { jobName: prop[0] }
+    })
+    // this.props.history.push("job-information");
   }
 
   render() {
@@ -72,7 +131,7 @@ class TableList extends Component {
                     <tbody>
                       {activeJobsData.map((prop, key) => {
                         return (
-                          <tr key={key} onClick={this.onClickHandler}>
+                          <tr key={key} onClick={e => this.onClickHandler(e, prop)}>
                             {prop.map((prop, key) => {
                               return <td key={key}>{prop}</td>;
                             })}

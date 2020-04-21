@@ -23,7 +23,8 @@ export class InDegreeCard extends Component {
   constructor(props){
     super(props);
     this.state = {
-      content: this.props.content
+      content: this.props.content,
+      jobName: this.props.jobName
     }
   }
 
@@ -57,7 +58,7 @@ export class InDegreeCard extends Component {
       // const response = await fetch('http://localhost:5000/in-degree')
       //   .then(res => res.json()).then(newInDegreeData => this.construct_table(newInDegreeData))
 
-      const res = await fetch('http://localhost:5000/in-degree');
+      const res = await fetch('http://localhost:5000/in-degree?' + 'job-name=' + this.state.jobName);
       const newInDegreeData = await res.json();
       const newInDegreeArray = [];
       for(var key in newInDegreeData)

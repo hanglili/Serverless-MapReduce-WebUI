@@ -29,6 +29,13 @@ import StageStateCard from "../components/Card/StageStateCard";
 import GraphCard from "../components/Card/GraphCard";
 
 class JobInfo extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      jobName: this.props.location.state.jobName
+    }
+  }
+
   render() {
     return (
       <div className="content">
@@ -38,6 +45,7 @@ class JobInfo extends Component {
               <InDegreeCard
                 title="In Degree Information"
                 category="General information of the current selected job"
+                jobName={this.state.jobName}
                 ctTableFullWidth
                 ctTableResponsive
                 content={
@@ -68,6 +76,7 @@ class JobInfo extends Component {
                 <StageStateCard
                   title="Stage State Information"
                   category="General information of the current selected job"
+                  jobName={this.state.jobName}
                   ctTableFullWidth
                   ctTableResponsive
                   content={
@@ -100,6 +109,7 @@ class JobInfo extends Component {
               <GraphCard
                 title="Pipelines Dependencies Information"
                 category="General information of the current selected job"
+                jobName={this.state.jobName}
                 ctTableFullWidth
                 ctTableResponsive
                 content={

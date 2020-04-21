@@ -15,8 +15,8 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import Dashboard from "views/Dashboard.jsx";
-import UserProfile from "views/UserProfile.jsx";
+// import Dashboard from "views/Dashboard.jsx";
+// import UserProfile from "views/UserProfile.jsx";
 import TableList from "views/TableList.jsx";
 import JobInfo from "./views/JobInfo";
 
