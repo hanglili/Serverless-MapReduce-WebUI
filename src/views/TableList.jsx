@@ -162,7 +162,9 @@ class TableList extends Component {
                         return (
                           <tr key={key} onClick={(e) => this.onClickHandler(e, prop)}>
                             {prop.map((prop, key) => {
-                              return <td key={key}>{prop}</td>;
+                              return <td key={key} style={{'text-align': 'center', 'vertical-align': 'middle'}}>
+                                {prop}
+                              </td>;
                             })}
                           </tr>
                         );
@@ -193,7 +195,9 @@ class TableList extends Component {
                         return (
                           <tr key={key} onClick={(e) => this.onClickHandler(e, prop)}>
                             {prop.map((prop, key) => {
-                              return <td key={key}>{prop}</td>;
+                              return <td key={key} style={{'text-align': 'center', 'vertical-align': 'middle'}}>
+                                {prop}
+                              </td>;
                             })}
                           </tr>
                         );
