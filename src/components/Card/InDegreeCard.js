@@ -58,7 +58,7 @@ export class InDegreeCard extends Component {
       // const response = await fetch('http://localhost:5000/in-degree')
       //   .then(res => res.json()).then(newInDegreeData => this.construct_table(newInDegreeData))
 
-      const res = await fetch('http://localhost:5000/in-degree?' + 'job-name=' + this.state.jobName);
+      const res = await fetch('http://localhost:5000/in-degree?'.concat('job-name=', this.state.jobName));
       const newInDegreeData = await res.json();
       const newInDegreeArray = [];
       for(var key in newInDegreeData)

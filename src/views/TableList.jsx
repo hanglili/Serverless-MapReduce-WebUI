@@ -20,7 +20,7 @@ import { Grid, Row, Col, Table } from "react-bootstrap";
 import { withRouter } from "react-router-dom";
 
 import Card from "components/Card/Card.jsx";
-import { jobsColumnNames, completedJobsData, activeJobsData } from "variables/Variables.jsx";
+import { jobsColumnNames } from "variables/Variables.jsx";
 import {StatsCard} from "../components/StatsCard/StatsCard";
 
 
@@ -29,7 +29,19 @@ class TableList extends Component {
     super(props);
     this.state = {
       completed: [],
-      active: []
+      active: [],
+      numJobs: 0,
+      username: ""
+    }
+  }
+
+  async loadUsername() {
+    try {
+      const res = await fetch('http://localhost:5000/username');
+      return await res.text();
+    } catch(e) {
+      console.log(e);
+      return "";
     }
   }
 
@@ -44,6 +56,11 @@ class TableList extends Component {
   }
 
   componentWillMount() {
+    this.loadUsername().then(username => {
+      this.setState({
+        'username': username
+      })
+    })
     this.loadNewData().then(newJobsData => {
       const newCompletedJobArray = [];
       for(var i = 0; i < newJobsData.completed.length; i++) {
@@ -75,29 +92,41 @@ class TableList extends Component {
       }
       this.setState({
         'completed': newCompletedJobArray,
-        'active': newActiveJobArray
+        'active': newActiveJobArray,
+        'numJobs': newCompletedJobArray.length + newActiveJobArray.length
       })
     })
   }
 
   onClickHandler = (e, prop) => {
+    console.log(e)
+    console.log(prop)
     this.props.history.push({
       pathname: "job-information",
       state: { jobName: prop[0] }
     })
     // this.props.history.push("job-information");
   }
+  // onClickHandler(prop) {
+  //   // console.log(e)
+  //   console.log(prop)
+  //   this.props.history.push({
+  //     pathname: "job-information",
+  //     state: { jobName: prop }
+  //   })
+  //   // this.props.history.push("job-information");
+  // }
 
   render() {
     return (
       <div className="content">
         <Grid fluid>
           <Row>
-            <Col lg={3} sm={6}>
+            <Col lg={5} sm={6}>
               <StatsCard
                 bigIcon={<i className="pe-7s-user text-warning" />}
-                statsText="Username"
-                statsValue="hanglili"
+                statsText="AWS Account ID"
+                statsValue={this.state.username}
                 statsIcon={<i className="fa fa-refresh" />}
                 statsIconText="Updated now"
               />
@@ -106,7 +135,7 @@ class TableList extends Component {
               <StatsCard
                 bigIcon={<i className="pe-7s-folder text-success" />}
                 statsText="Total jobs"
-                statsValue="123"
+                statsValue={this.state.numJobs}
                 statsIcon={<i className="fa fa-refresh" />}
                 statsIconText="Updated now"
               />
@@ -129,9 +158,9 @@ class TableList extends Component {
                       </tr>
                     </thead>
                     <tbody>
-                      {activeJobsData.map((prop, key) => {
+                      {this.state.active.map((prop, key) => {
                         return (
-                          <tr key={key} onClick={e => this.onClickHandler(e, prop)}>
+                          <tr key={key} onClick={(e) => this.onClickHandler(e, prop)}>
                             {prop.map((prop, key) => {
                               return <td key={key}>{prop}</td>;
                             })}
@@ -160,9 +189,9 @@ class TableList extends Component {
                       </tr>
                     </thead>
                     <tbody>
-                      {completedJobsData.map((prop, key) => {
+                      {this.state.completed.map((prop, key) => {
                         return (
-                          <tr key={key} onClick={this.onClickHandler}>
+                          <tr key={key} onClick={(e) => this.onClickHandler(e, prop)}>
                             {prop.map((prop, key) => {
                               return <td key={key}>{prop}</td>;
                             })}

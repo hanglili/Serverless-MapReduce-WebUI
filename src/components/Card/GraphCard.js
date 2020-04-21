@@ -17,7 +17,7 @@ export class GraphCard extends Component {
 
   async loadNewData() {
     try {
-      const res = await fetch('http://localhost:5000/dag?' + 'job-name=' + this.state.jobName);
+      const res = await fetch('http://localhost:5000/dag?'.concat('job-name=', this.state.jobName));
       return await res.json()
     } catch(e) {
       console.log(e);
