@@ -268,7 +268,7 @@ var style = {
 //
 const jobsColumnNames = [
   "Name", "Shuffling Bucket", "Input Source", "Output Source", "Submitted", "Duration",
-  "Pipelines: Succeeded/Total", "Stages (for all pipelines): Succeeded/Total"
+  "Pipelines: Total", "Stages (for all pipelines): Total"
 ];
 const activeJobsData = [
   ["bl-release", "serverless-mapreduce-storage", "serverless-mapreduce-storage-input",

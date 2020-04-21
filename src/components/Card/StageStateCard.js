@@ -23,7 +23,8 @@ export class StageStateCard extends Component {
   constructor(props){
     super(props);
     this.state = {
-      content: this.props.content
+      content: this.props.content,
+      jobName: this.props.jobName
     }
   }
 
@@ -57,7 +58,7 @@ export class StageStateCard extends Component {
       // const response = fetch('http://localhost:5000/')
       //   .then(res => res.text()).then(newStageStageData => this.construct_table(newStageStageData))
 
-      const res = await fetch('http://localhost:5000/num-completed-operators');
+      const res = await fetch('http://localhost:5000/num-completed-operators?'.concat('job-name=', this.state.jobName));
       const newStageStageData = await res.json();
       const newStageStageArray = [];
       for(var key in newStageStageData)

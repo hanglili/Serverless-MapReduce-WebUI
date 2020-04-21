@@ -29,7 +29,7 @@ class Admin extends Component {
     this.state = {
       _notificationSystem: null,
       image: image,
-      color: "red",
+      color: "black",
       hasImage: true,
       fixedClasses: "dropdown show-dropdown open"
     };
