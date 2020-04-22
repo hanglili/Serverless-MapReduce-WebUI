@@ -16,10 +16,10 @@
 
 */
 import React, { Component } from "react";
-import { stageStateColumnNames } from "../../variables/Variables";
-import {Table} from "react-bootstrap";
+import { stageProgressColumnNames } from "../../variables/Variables";
+import { Table, ProgressBar } from "react-bootstrap";
 
-export class StageStateCard extends Component {
+export class StageProgressCard extends Component {
   constructor(props){
     super(props);
     this.state = {
@@ -28,23 +28,26 @@ export class StageStateCard extends Component {
     }
   }
 
-  construct_table(newStageStateData) {
+  construct_table(newStageProgressData) {
     return (
       <Table hover>
         <thead>
         <tr>
-          {stageStateColumnNames.map((prop, key) => {
+          {stageProgressColumnNames.map((prop, key) => {
             return <th key={key}>{prop}</th>;
           })}
         </tr>
         </thead>
         <tbody>
-        {newStageStateData.map((prop, key) => {
+        {newStageProgressData.map((prop, key) => {
           return (
             <tr key={key}>
-              {prop.map((prop, key) => {
-                return <td key={key}>{prop}</td>;
-              })}
+              <td key={0}>{prop[0]}</td>
+              <td key={1}>
+                <div>
+                  <ProgressBar animated now={prop[1] / prop[2] * 100} label={`${prop[1]} / ${prop[2]}`}/>
+                </div>
+              </td>
             </tr>
           );
         })}
@@ -55,13 +58,14 @@ export class StageStateCard extends Component {
 
   async loadNewData() {
     try {
-      const res = await fetch('http://localhost:5000/num-completed-operators?'.concat('job-name=', this.state.jobName));
-      const newStageStateData = await res.json();
-      const newStageStateArray = [];
-      for(var key in newStageStateData)
-        newStageStateArray.push([key, newStageStateData[key][0], newStageStateData[key][1]]);
-      console.log("The data is " + newStageStateArray)
-      return newStageStateArray
+      const res = await fetch('http://localhost:5000/stage-progress?'.concat('job-name=', this.state.jobName));
+      const newStageProgressData = await res.json();
+      const newStageProgressArray = [];
+      for(var key in newStageProgressData)
+        newStageProgressArray.push([key, parseInt(newStageProgressData[key][0], 10),
+          parseInt(newStageProgressData[key][1], 10)]);
+      console.log("The data is " + newStageProgressArray)
+      return newStageProgressArray
     } catch(e) {
       console.log(e);
       return [];
@@ -70,10 +74,10 @@ export class StageStateCard extends Component {
 
   componentDidMount() {
     this.interval = setInterval(async () => {
-        await this.loadNewData().then(newStageStateArray =>
-          this.setState({content: this.construct_table(newStageStateArray)})
-        );
-      }, 1000);
+      await this.loadNewData().then(newStageProgressArray =>
+        this.setState({content: this.construct_table(newStageProgressArray)})
+      );
+    }, 1000);
   }
 
   componentWillUnmount() {
@@ -115,4 +119,4 @@ export class StageStateCard extends Component {
   }
 }
 
-export default StageStateCard;
+export default StageProgressCard;

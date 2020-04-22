@@ -16,11 +16,11 @@
 
 */
 import React, { Component } from "react";
-import { Grid, Row, Col, Table } from "react-bootstrap";
+import {Grid, Row, Col, Table, Button} from "react-bootstrap";
 import { withRouter } from "react-router-dom";
 
 import Card from "components/Card/Card.jsx";
-import { jobsColumnNames } from "variables/Variables.jsx";
+import { jobsColumnNames, registeredJobsColumnNames } from "variables/Variables.jsx";
 import {StatsCard} from "../components/StatsCard/StatsCard";
 
 
@@ -30,7 +30,9 @@ class TableList extends Component {
     this.state = {
       completed: [],
       active: [],
-      numJobs: 0,
+      registered: [],
+      numActiveJobs: 0,
+      numCompletedJobs: 0,
       username: ""
     }
   }
@@ -55,6 +57,47 @@ class TableList extends Component {
     }
   }
 
+  reformatJobsData(jobsData, fieldNames) {
+    const jobArray = [];
+    for(var k = 0; k < jobsData.length; k++) {
+      const map = jobsData[k]
+      const currentRow = []
+      for(const fieldName of fieldNames) {
+        currentRow.push(map[fieldName])
+      }
+      jobArray.push(currentRow)
+    }
+    return jobArray
+  }
+
+  updateJobsData(newJobsData) {
+    if (newJobsData.length === 0) {
+      return;
+    }
+    const newRegisteredJobArray = this.reformatJobsData(newJobsData.registered,
+      [
+        'jobName', 'driverLambdaName', 'shufflingBucket', 'inputSource',
+        'outputSource', 'registeredTime', 'totalNumPipelines', 'totalNumStages'
+      ])
+    const newCompletedJobArray = this.reformatJobsData(newJobsData.completed,
+      [
+        'jobName', 'shufflingBucket', 'inputSource', 'outputSource',
+        'submissionTime', 'duration', 'totalNumPipelines', 'totalNumStages'
+      ])
+    const newActiveJobArray = this.reformatJobsData(newJobsData.active,
+      [
+        'jobName', 'shufflingBucket', 'inputSource', 'outputSource',
+        'submissionTime', 'duration', 'totalNumPipelines', 'totalNumStages'
+      ])
+    this.setState({
+      'registered': newRegisteredJobArray,
+      'completed': newCompletedJobArray,
+      'active': newActiveJobArray,
+      'numActiveJobs': newActiveJobArray.length,
+      'numCompletedJobs': newCompletedJobArray.length
+    })
+  }
+
   componentWillMount() {
     this.loadUsername().then(username => {
       this.setState({
@@ -62,45 +105,20 @@ class TableList extends Component {
       })
     })
     this.loadNewData().then(newJobsData => {
-      const newCompletedJobArray = [];
-      for(var i = 0; i < newJobsData.completed.length; i++) {
-        const map = newJobsData.completed[i]
-        const currentRow = []
-        currentRow.push(map['jobName'])
-        currentRow.push(map['shufflingBucket'])
-        currentRow.push(map['inputSource'])
-        currentRow.push(map['outputSource'])
-        currentRow.push(map['submissionTime'])
-        currentRow.push(map['duration'])
-        currentRow.push(map['totalNumPipelines'])
-        currentRow.push(map['totalNumStages'])
-        newCompletedJobArray.push(currentRow)
-      }
-      const newActiveJobArray = [];
-      for(var j = 0; j < newJobsData.active.length; j++) {
-        const map = newJobsData.active[j]
-        const currentRow = []
-        currentRow.push(map['jobName'])
-        currentRow.push(map['shufflingBucket'])
-        currentRow.push(map['inputSource'])
-        currentRow.push(map['outputSource'])
-        currentRow.push(map['submissionTime'])
-        currentRow.push(map['duration'])
-        currentRow.push(map['totalNumPipelines'])
-        currentRow.push(map['totalNumStages'])
-        newActiveJobArray.push(currentRow)
-      }
-      this.setState({
-        'completed': newCompletedJobArray,
-        'active': newActiveJobArray,
-        'numJobs': newCompletedJobArray.length + newActiveJobArray.length
-      })
+      this.updateJobsData(newJobsData)
     })
+    this.interval = setInterval(async () => {
+      await this.loadNewData().then(newJobsData => {
+        this.updateJobsData(newJobsData)
+      })
+    }, 5000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
   }
 
   onClickHandler = (e, prop) => {
-    console.log(e)
-    console.log(prop)
     this.props.history.push({
       pathname: "job-information",
       state: { jobName: prop[0] }
@@ -116,6 +134,15 @@ class TableList extends Component {
   //   })
   //   // this.props.history.push("job-information");
   // }
+
+  async invokeJob(jobName, driverLambdaName) {
+    try {
+      await fetch('http://localhost:5000/invoke-job?'.concat('job-name=', jobName,
+        '&driver-lambda-name=', driverLambdaName));
+    } catch(e) {
+      console.log(e);
+    }
+  }
 
   render() {
     return (
@@ -134,14 +161,63 @@ class TableList extends Component {
             <Col lg={3} sm={6}>
               <StatsCard
                 bigIcon={<i className="pe-7s-folder text-success" />}
-                statsText="Total jobs"
-                statsValue={this.state.numJobs}
+                statsText="Active jobs"
+                statsValue={this.state.numActiveJobs}
+                statsIcon={<i className="fa fa-refresh" />}
+                statsIconText="Updated now"
+              />
+            </Col>
+            <Col lg={4} sm={6}>
+              <StatsCard
+                bigIcon={<i className="pe-7s-folder text-success" />}
+                statsText="Completed jobs"
+                statsValue={this.state.numCompletedJobs}
                 statsIcon={<i className="fa fa-refresh" />}
                 statsIconText="Updated now"
               />
             </Col>
           </Row>
           <Row>
+            <Col md={12}>
+              <Card
+                title="Registered Jobs"
+                category="Current registered jobs"
+                ctTableFullWidth
+                ctTableResponsive
+                content={
+                  <Table hover>
+                    <thead>
+                    <tr>
+                      {registeredJobsColumnNames.map((prop, key) => {
+                        return <th key={key} style={{'textAlign': 'center', 'verticalAlign': 'middle'}}>{prop}</th>;
+                      })}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {this.state.registered.map((prop, key) => {
+                      return (
+                        <tr>
+                          {prop.map((prop, key) => {
+                            return <td key={key} style={{'textAlign': 'center', 'verticalAlign': 'middle'}}>
+                              {prop}
+                            </td>;
+                          })}
+                          <td key={8}>
+                            <Button bsClass="btn btn-primary" onClick={async () => {
+                              await this.invokeJob(prop[0], prop[1])
+                            }}>
+                              Run
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    </tbody>
+                  </Table>
+                }
+              />
+            </Col>
+
             <Col md={12}>
               <Card
                 title="Active Jobs"
@@ -153,7 +229,7 @@ class TableList extends Component {
                     <thead>
                       <tr>
                         {jobsColumnNames.map((prop, key) => {
-                          return <th key={key}>{prop}</th>;
+                          return <th key={key} style={{'textAlign': 'center', 'verticalAlign': 'middle'}}>{prop}</th>;
                         })}
                       </tr>
                     </thead>
@@ -162,7 +238,7 @@ class TableList extends Component {
                         return (
                           <tr key={key} onClick={(e) => this.onClickHandler(e, prop)}>
                             {prop.map((prop, key) => {
-                              return <td key={key} style={{'text-align': 'center', 'vertical-align': 'middle'}}>
+                              return <td key={key} style={{'textAlign': 'center', 'verticalAlign': 'middle'}}>
                                 {prop}
                               </td>;
                             })}
@@ -186,7 +262,7 @@ class TableList extends Component {
                     <thead>
                       <tr>
                         {jobsColumnNames.map((prop, key) => {
-                          return <th key={key}>{prop}</th>;
+                          return <th key={key} style={{'textAlign': 'center', 'verticalAlign': 'middle'}}>{prop}</th>;
                         })}
                       </tr>
                     </thead>
@@ -195,7 +271,7 @@ class TableList extends Component {
                         return (
                           <tr key={key} onClick={(e) => this.onClickHandler(e, prop)}>
                             {prop.map((prop, key) => {
-                              return <td key={key} style={{'text-align': 'center', 'vertical-align': 'middle'}}>
+                              return <td key={key} style={{'textAlign': 'center', 'verticalAlign': 'middle'}}>
                                 {prop}
                               </td>;
                             })}

@@ -266,6 +266,10 @@ var style = {
 // // // For tables
 // //
 //
+const registeredJobsColumnNames = [
+  "Name", "Driver Lambda Name", "Shuffling Bucket", "Input Source", "Output Source",
+  "Registered", "Pipelines: Total", "Stages (for all pipelines): Total", "Run"
+];
 const jobsColumnNames = [
   "Name", "Shuffling Bucket", "Input Source", "Output Source", "Submitted", "Duration",
   "Pipelines: Total", "Stages (for all pipelines): Total"
@@ -285,11 +289,14 @@ const inDegreeColumnNames = [
 const inDegreeData = [
   [1, 0], [2, 0], [3, 2]
 ];
-const stageStateColomnNames = [
+const stageStateColumnNames = [
   "Stage ID", "Num of operators completed", "Total num of operators"
 ];
 const stageStateData = [
   [1, 4], [2, 4], [3, 2], [4, 2], [5, 6]
+];
+const stageProgressColumnNames = [
+  "Stage ID", "Progress based on total num of keys processed"
 ];
 
 //
@@ -616,13 +623,15 @@ var legendBar = {
 
 module.exports = {
   style, // For notifications (App container and Notifications view)
+  registeredJobsColumnNames,
   jobsColumnNames,
   activeJobsData,
   completedJobsData, // For tables (TableList view)
   inDegreeColumnNames,
   inDegreeData,
-  stageStateColomnNames,
+  stageStateColumnNames,
   stageStateData,
+  stageProgressColumnNames,
   iconsArray, // For icons (Icons view)
   dataPie,
   legendPie,

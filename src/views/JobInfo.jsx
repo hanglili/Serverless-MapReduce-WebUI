@@ -23,10 +23,11 @@ import {
   Table
 } from "react-bootstrap";
 
-import {inDegreeColumnNames, stageStateColomnNames} from "../variables/Variables";
+import { inDegreeColumnNames, stageStateColumnNames, stageProgressColumnNames } from "../variables/Variables";
 import InDegreeCard from "../components/Card/InDegreeCard";
 import StageStateCard from "../components/Card/StageStateCard";
 import GraphCard from "../components/Card/GraphCard";
+import StageProgressCard from "../components/Card/StageProgressCard";
 
 class JobInfo extends Component {
   constructor(props){
@@ -83,7 +84,7 @@ class JobInfo extends Component {
                     <Table hover>
                       <thead>
                       <tr>
-                        {stageStateColomnNames.map((prop, key) => {
+                        {stageStateColumnNames.map((prop, key) => {
                           return <th key={key}>{prop}</th>;
                         })}
                       </tr>
@@ -103,6 +104,39 @@ class JobInfo extends Component {
                   }
                 />
               </Col>
+          </Row>
+          <Row>
+            <Col md={12}>
+              <StageProgressCard
+                title="Stage progress Information"
+                category="Stage progress Information"
+                jobName={this.state.jobName}
+                ctTableFullWidth
+                ctTableResponsive
+                content={
+                  <Table hover>
+                    <thead>
+                    <tr>
+                      {stageProgressColumnNames.map((prop, key) => {
+                        return <th key={key}>{prop}</th>;
+                      })}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {[].map((prop, key) => {
+                      return (
+                        <tr key={key}>
+                          {prop.map((prop, key) => {
+                            return <td key={key}>{prop}</td>;
+                          })}
+                        </tr>
+                      );
+                    })}
+                    </tbody>
+                  </Table>
+                }
+              />
+            </Col>
           </Row>
           <Row>
             <Col md={12}>
