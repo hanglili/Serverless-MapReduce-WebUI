@@ -15,8 +15,8 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { Component } from "react";
-import {Grid, Row, Col, Table, Button} from "react-bootstrap";
+import React, {Component} from "react";
+import {Grid, Row, Col, Table, Button, Modal} from "react-bootstrap";
 import { withRouter } from "react-router-dom";
 
 import Card from "components/Card/Card.jsx";
@@ -33,8 +33,21 @@ class TableList extends Component {
       registered: [],
       numActiveJobs: 0,
       numCompletedJobs: 0,
-      username: ""
+      username: "",
+      show: false
     }
+  }
+
+  handleClose(){
+    this.setState({
+      'show': false
+    })
+  }
+
+  handleShow(){
+    this.setState({
+      'show': true
+    })
   }
 
   async loadUsername() {
@@ -123,22 +136,27 @@ class TableList extends Component {
       pathname: "job-information",
       state: { jobName: prop[0] }
     })
-    // this.props.history.push("job-information");
   }
-  // onClickHandler(prop) {
-  //   // console.log(e)
-  //   console.log(prop)
-  //   this.props.history.push({
-  //     pathname: "job-information",
-  //     state: { jobName: prop }
-  //   })
-  //   // this.props.history.push("job-information");
-  // }
+
+  handleScheduleExpressionChange = (e) => {
+    this.setState({
+      'scheduleExpression': e.target.value
+    });
+  }
 
   async invokeJob(jobName, driverLambdaName) {
     try {
       await fetch('http://localhost:5000/invoke-job?'.concat('job-name=', jobName,
         '&driver-lambda-name=', driverLambdaName));
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  async invokeSchedule(jobName, driverLambdaName, scheduleExpression) {
+    try {
+      await fetch('http://localhost:5000/schedule-job?'.concat('job-name=', jobName,
+        '&driver-lambda-name=', driverLambdaName, '&schedule-expression=', scheduleExpression));
     } catch(e) {
       console.log(e);
     }
@@ -208,6 +226,40 @@ class TableList extends Component {
                             }}>
                               Run
                             </Button>
+                          </td>
+                          <td key={9}>
+                            <>
+                              <Button bsClass="btn btn-primary" onClick={this.handleShow.bind(this)}>
+                                Schedule
+                              </Button>
+
+                              <Modal show={this.state.show} onHide={this.handleClose.bind(this)}>
+                                <Modal.Header closeButton>
+                                  <Modal.Title>Scheduling Job</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                  <form>
+                                    <input style={{'borderRadius': '5px', 'padding': '20px',
+                                      'width': '200px', 'height': '15px'}}
+                                           type="text" name="Schedule expression" placeholder="Schedule expression"
+                                           value={this.state.scheduleExpression} onChange={this.handleScheduleExpressionChange} />
+                                  </form>
+                                </Modal.Body>
+                                <Modal.Footer>
+                                  <Button bsClass="btn btn-primary" onClick={this.handleClose.bind(this)}>
+                                    Close
+                                  </Button>
+                                  <Button bsClass="btn btn-primary" onClick={() => {
+                                    // this.invokeSchedule.bind(this, prop[0], prop[1]);
+                                    this.invokeSchedule(prop[0], prop[1], this.state.scheduleExpression);
+                                    this.handleClose();
+                                    this.setState({'scheduleExpression': ''})
+                                  }}>
+                                    Schedule
+                                  </Button>
+                                </Modal.Footer>
+                              </Modal>
+                            </>
                           </td>
                         </tr>
                       );

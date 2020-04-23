@@ -268,7 +268,7 @@ var style = {
 //
 const registeredJobsColumnNames = [
   "Name", "Driver Lambda Name", "Shuffling Bucket", "Input Source", "Output Source",
-  "Registered", "Pipelines: Total", "Stages (for all pipelines): Total", "Run"
+  "Registered", "Pipelines: Total", "Stages (for all pipelines): Total", "Run", "Schedule"
 ];
 const jobsColumnNames = [
   "Name", "Shuffling Bucket", "Input Source", "Output Source", "Submitted", "Duration",
